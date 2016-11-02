@@ -61,10 +61,8 @@
 /*==================[inclusions]=============================================*/
 #include "stdint.h"
 #include "led.h"
-#include "switch.h"
+#include "adc.h"
 #include "timer.h"
-#include "dac.h"
-
 
 
 /*==================[macros]=================================================*/
@@ -102,8 +100,8 @@ extern void _vStackTop(void);
 
 
 void RIT_IRQHandler(void);
-void Musica(void);
-void Teclazo(void);
+void Pwms(void);
+
 #else
 #endif
 

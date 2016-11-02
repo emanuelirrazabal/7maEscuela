@@ -1,4 +1,4 @@
-/* Copyright 2016, 
+	/* Copyright 2016,
  * Leandro D. Medus
  * lmedus@bioingenieria.edu.ar
  * Eduardo Filomena
@@ -80,36 +80,39 @@
 
 
 /*==================[external data declaration]==============================*/
-
+#define  CH1 ADC_CH1
+#define  CH2 ADC_CH2
+#define  CH3 ADC_CH3
 
 /*==================[external functions declaration]=========================*/
 /** \brief Initialization function to control adc 0 channel 0 in the EDU-CIAA BOARD 
  ** 
  ** \return TRUE if no error
  **/
-uint8_t Init_Adc(void);
+uint8_t init_ADC_EDUCIAA(void);
 
-/** \brief reads adc0 channel 0 value pooling method (blocking)
+/** \brief reads adc0 channel 1 value pooling method (blocking)
  ** \return ADC value (10 bits)
  **/
-uint16_t Read_Adc_Value_pooling(void);
+uint16_t read_ADC_value_pooling(void);
 
-/** \brief adc0 channel 0 start of convertion
+void ADC_Sel(ADC_CHANNEL_T C);
+/** \brief adc0 channel 1 start of convertion
  ** 
  **/
-void Start_Adc(void);
+void ADC_Start(void);
 
-/** \brief reads adc0 channel 0 converted value (non blocking)
+/** \brief reads adc0 channel 1 converted value (non blocking)
  ** \return ADC value (10 bits)
  **/
-uint16_t Read_Adc_Value(void);
+uint16_t read_ADC_value(void);
 
-/** \brief enable adc0 channel 0 end of convertion interrupt 
+/** \brief enable adc0 channel 1 end of convertion interrupt 
  ** 
  ** \param[in] adress of adc0 ISR (Interrupt Servide Routine)
  **
  **/
-void Enable_Adc_Irq(void *pfunc);
+void enable_ADC_IRQ(void *pfunc);
 
 
 /** @} doxygen end group definition */

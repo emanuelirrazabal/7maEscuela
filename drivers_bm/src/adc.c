@@ -48,15 +48,14 @@
  * ---------------------------
  *	LM			Leandro Medus
  *  EF			Eduardo Filomena
- *  JMR			JuanManuel Reta
+ *  JMR			Juan Manuel Reta
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20160422 v0.1 initials initial version leo
- * 20160807 v0.2 modifications and improvements made by Eduardo Filomena
- * 20160808 v0.3 modifications and improvements made by Juan Manuel Reta
+ * 20160807 v0.2 modifications and improvements made by Eduardo Filomena 
  */
 
 /*==================[inclusions]=============================================*/
@@ -69,7 +68,7 @@ void (*pIsrADC0)();
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-
+ADC_CHANNEL_T Canal;
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -79,7 +78,7 @@ void (*pIsrADC0)();
 }
 /*==================[external functions definition]==========================*/
 /** \brief ADC Initialization method  */
-uint8_t Init_ADC(void)
+uint8_t init_ADC_EDUCIAA(void)
 {
 
 	/** \details
@@ -97,14 +96,14 @@ uint8_t Init_ADC(void)
 	configADC.bitsAccuracy=ADC_10BITS;
 
 	Chip_ADC_Init(LPC_ADC0,&configADC);
-	Chip_ADC_EnableChannel(LPC_ADC0,ADC_CH1,ENABLE);
+	//Chip_ADC_EnableChannel(LPC_ADC0,ADC_CH1,ENABLE);
 	Chip_ADC_SetSampleRate(LPC_ADC0, &configADC,ADC_MAX_SAMPLE_RATE);
 
 	return TRUE;
 }
 
 /** \brief ADC Ch1 Acquisition method by pooling */
-uint16_t Read_Adc_Value_Pooling(void)
+uint16_t read_ADC_value_pooling(void)
 {
 	/** \details
 	 * This function initialize the DAC peripheral in the EDU-CIAA board,
@@ -115,37 +114,45 @@ uint16_t Read_Adc_Value_Pooling(void)
 	 * \return uint8_t: TBD (to support errors in the init function)
 	 * */
 	uint16_t valueRead = 0 ;
-
 	/** Start Acquisition */
 	Chip_ADC_SetStartMode(LPC_ADC0, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
 	/** The pooling magic! */
-	while (Chip_ADC_ReadStatus(LPC_ADC0, ADC_CH1, ADC_DR_DONE_STAT) != SET)
+	while (Chip_ADC_ReadStatus(LPC_ADC0, Canal, ADC_DR_DONE_STAT) != SET)
 	{
 		/** pooooliiinnggg maaagggicccc plif plif pluf pluf */
 	}
 	/** Conversion complete, and value reading */
-	Chip_ADC_ReadValue(LPC_ADC0,ADC_CH1, &valueRead);
+	Chip_ADC_ReadValue(LPC_ADC0,Canal, &valueRead);
 
 	return valueRead;
 }
 
+void ADC_Sel(ADC_CHANNEL_T C){
+	Canal=C;
+	Chip_ADC_EnableChannel(LPC_ADC0,CH1,DISABLE);
+	Chip_ADC_EnableChannel(LPC_ADC0,CH2,DISABLE);
+	Chip_ADC_EnableChannel(LPC_ADC0,CH3,DISABLE);
+	Chip_ADC_EnableChannel(LPC_ADC0,Canal,ENABLE);
+}
+
+
 /** Start Acquisition */
-void Start_Adc(void){
+void ADC_Start(void){
   Chip_ADC_SetStartMode(LPC_ADC0, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
 	
 }
-uint16_t Read_Adc_Value(void){
+uint16_t read_ADC_value(void){
   uint16_t data;
-  Chip_ADC_ReadValue(LPC_ADC0,ADC_CH1, &data);
+  Chip_ADC_ReadValue(LPC_ADC0,Canal, &data);
   return data;
 
   }
   
-void Enable_Adc_Irq(void *pfunc){
+void enable_ADC_IRQ(void *pfunc){
 	pIsrADC0=pfunc;
 	/*Enable interrupt for ADC channel */
 
-	Chip_ADC_Int_SetChannelCmd(LPC_ADC0,ADC_CH1,ENABLE);
+	Chip_ADC_Int_SetChannelCmd(LPC_ADC0,Canal,ENABLE);
 	NVIC_EnableIRQ(ADC0_IRQn);
   }
 

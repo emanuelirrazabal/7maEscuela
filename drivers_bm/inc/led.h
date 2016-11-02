@@ -80,6 +80,7 @@
 void InitLed(void);
 void EncenderLed(uint8_t led);
 void ApagarLed(uint8_t led);
+void ApagarLeds(void);
 void CambiarLed(uint8_t led);
 
 /*==================[external functions declaration]=========================*/

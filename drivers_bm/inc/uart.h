@@ -79,16 +79,18 @@
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-uint8_t Init_Uart_Ftdi(void);
-uint8_t Init_Uart_Rs485(void);
-uint8_t Init_Uart_Rs232(void);
+uint8_t init_UART_FTDI_EDUCIAA(void);
+uint8_t init_UART_RS485_EDUCIAA(void);
+uint8_t init_UART_RS232_EDUCIAA(void);
 
-uint8_t ReadByte_Uart_Usb(void);
-uint32_t ReadStatus_Uart_Usb(void);
+uint8_t readByte_UART_USB_EDUCIAA();
+uint32_t readStatus_UART_USB_EDUCIAA();
+void writeByte_UART_USB_EDUCIAA(uint8_t dato);
+void sendString_UART_USB_EDUCIAA(char message[], uint8_t size);
 
-void SendString_Uart_Usb(char message[], uint8_t size);
+uint8_t readByte_UART_RS232_EDUCIAA();
 
-void IntToString(int16_t value, uint8_t* pBuf, uint32_t len, uint32_t base);
+void intToString(int16_t value, uint8_t* pBuf, uint32_t len, uint32_t base);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

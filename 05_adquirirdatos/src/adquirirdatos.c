@@ -86,80 +86,57 @@
  * \remarks This function never returns. Return value is only to avoid compiler
  *          warnings or errors.
  */
-uint16_t senial[] = {512,544,576,608,639,670,700,730,759,786,813,838,862,885,907,926,944,961,975,
-		988,999,1008,1015,1020,1023,1024,1023,1020,1015,1008,999,988,975,961,944,926,907,885,862,838,813,786,759,
-		730,700,670,639,608,576,544,512,480,448,416,385,354,324,294,265,238,211,186,162,139,117,98,80,63,49,36,25,
-		16,9,4,1,0,1,4,9,16,25,36,49,63,80,98,117,139,162,186,211,238,265,294,324,354,385,416,448,480};
 
-uint8_t tecla = 1;
 
-uint64_t periodoMaximo = 15;
-uint64_t periodoMinimo = 5;
-uint64_t periodo = 10;
-uint8_t i = 0;
-uint8_t j = 10;
 
 
 int main(void)
 {
    /* inicializaciones */
+	uint16_t limiteMaximo = 1020;
+	uint16_t limiteMinimo = 5;
+	uint16_t paso;
 
 
 	InitLed();
-	Init_Switches();
-	init_DAC_EDUCIAA();
-	timer0Init(1,Musica);
-
+	init_ADC_EDUCIAA();
+	ADC_Sel(CH1);
+	uint16_t i;
+	uint16_t j = 0;
     while(1){
-    	ApagarLed(LED2);
-    	ApagarLed(LED3);
 
-    Teclazo();
+    	i = read_ADC_value_pooling();
+    	paso = (limiteMaximo - limiteMinimo)/5;//paso de cambio de colores
+    	j = i/paso;
+    	ApagarLeds();
+		switch(j){
+    		case 0:
+    			EncenderLed(LED_VERDE);
+    		break;
+    		case 1:
+    			EncenderLed(LED_VERDE);
+    			EncenderLed(LED_AZUL);
+    		break;
+    		case 2:
+    			EncenderLed(LED_AZUL);
+    		break;
+    		case 3:
+    			EncenderLed(LED_AZUL);
+    			EncenderLed(LED_ROJO);
+    		break;
+    		case 4:
+    			EncenderLed(LED_ROJO);
+    		break;
 
-    };
+    		default:
+    		break;
+    	}
+
+    }
     
-
 
 }
 
-
-	void Teclazo()
-	{
-		tecla = 0;
-		do
-		{
-			tecla=Read_Switches();
-		}while(tecla == 0);
-		switch(tecla){
-		          case TEC3:
-				      if(periodo  <=  periodoMinimo)
-				    	  periodo = periodoMaximo;
-				      else
-				    	  periodo--;
-				      EncenderLed(LED2);
-				      break;
-				   case TEC4:
-					      if(periodo > periodoMaximo)
-					    	  periodo = periodoMinimo;
-					      else
-					    	  periodo++;
-					      EncenderLed(LED3);
-					      break;
-				   default : break;
-				}
-		j=periodo;
-	}
-
-	void Musica()
-	{
-		if(j == 0 )
-		{	update_DAC_value(senial[i++]);
-			if(i==100)
-				{i=0;CambiarLed(LED1);}
-		j=periodo;
-		}
-		j--;
-	}
 
 
 
