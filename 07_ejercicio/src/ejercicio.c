@@ -65,7 +65,7 @@
 #define ESPERA 1000000
 #define INTERPLAP 100000
 #define MICROACTUAL 10000
-#define ESPERA_APLAUSO 1000000
+#define ESPERA_APLAUSO 25000
 
 
 /* <= own header */
@@ -175,30 +175,7 @@ void Esclavo()
 
 void EscucharMicrofono()
 {
-	/*int i=0;
-	int aplausos = 0;
-	while(i<=INTERPLAP)
-	{
-		aplausos= aplausos + ReadMic();
-		i++;
-	}
-	sendString_UART_USB_EDUCIAA("\n\rLEIDO MICROFONO: ",22);
-	sendString_UART_USB_EDUCIAA(Itoa(aplausos,10),64);
-	sendString_UART_USB_EDUCIAA("\n\rUMBRAL MICROFONO: ",22);
-	sendString_UART_USB_EDUCIAA(Itoa(MICROACTUAL,10),64);
 
-	switch(aplausos/MICROACTUAL)
-	{
-		case 0:loQueEscuche = 0;break;
-		case 1:loQueEscuche = 65;break;
-		case 2:loQueEscuche = 66;break;
-		case 3:loQueEscuche = 67;break;
-		default: loQueEscuche =  67;break;
-		}
-	sendString_UART_USB_EDUCIAA("\n\rLED: ",22);
-	sendString_UART_USB_EDUCIAA(Itoa(loQueEscuche,10),3);
-	*/
-	//Espero primer bit
 	while(!ReadMic())
 	{
 
@@ -219,6 +196,7 @@ void EscucharMicrofono()
 	 //Dos aplausos
 	  aplausos = aplausos+ReadMic();
 	 i=0;
+
 	 while(i<=ESPERA_APLAUSO)
 	 	{
 	 		i++;
@@ -228,11 +206,11 @@ void EscucharMicrofono()
 
 	  switch(aplausos)
 	  	{
-	  		case 0:loQueEscuche = 0;sendString_UART_USB_EDUCIAA("\n\rLED: 0",9);break;
-	  		case 1:loQueEscuche = 65;sendString_UART_USB_EDUCIAA("\n\rLED: 65",9);break;
-	  		case 2:loQueEscuche = 66;sendString_UART_USB_EDUCIAA("\n\rLED: 66",9);break;
-	  		case 3:loQueEscuche = 67;sendString_UART_USB_EDUCIAA("\n\rLED: 67",9);break;
-	  		default: loQueEscuche =  67;sendString_UART_USB_EDUCIAA("\n\rLED:67d",9);break;
+	  		case 0:loQueEscuche = 0;sendString_UART_USB_EDUCIAA("\n\rNO RECIBIDO",20);break;
+	  		case 1:loQueEscuche = 65;sendString_UART_USB_EDUCIAA("\n\rLED 1 ACTIVADO. UN APLAUSO",30);break;
+	  		case 2:loQueEscuche = 66;sendString_UART_USB_EDUCIAA("\n\rLED 2 ACTIVADO. DOS APLAUSOS",30);break;
+	  		case 3:loQueEscuche = 67;sendString_UART_USB_EDUCIAA("\n\rLED 3 ACTIVADO. TRES APLAUSOS",30);break;
+	  		default: loQueEscuche =  67;sendString_UART_USB_EDUCIAA("\n\rLED 3 ACTIVADO. TRES APLAUSOS",30);break;
 	  		}
 
 
