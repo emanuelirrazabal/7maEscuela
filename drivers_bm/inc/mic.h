@@ -1,4 +1,4 @@
-/* Copyright 2016, XXXXXXX
+/* Copyright 2016, XXXXXXXXXX
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,8 +31,8 @@
  *
  */
 
-#ifndef EJERCICIO_H
-#define EJERCICIO_H
+#ifndef MIC_H
+#define MIC_H
 /** \brief Bare Metal example header file
  **
  ** This is a mini example of the CIAA Firmware
@@ -60,67 +60,22 @@
 
 /*==================[inclusions]=============================================*/
 #include "stdint.h"
-#include "adc.h"
-#include "timer.h"
-#include "uart.h"
-#include "itoa.h"
-#include "led.h"
-#include "switch.h"
-#include "mic.h"
-
-
-
 
 /*==================[macros]=================================================*/
 #define lpc4337            1
 #define mk60fx512vlq15     2
 
+
+
 /*==================[typedef]================================================*/
 
+
 /*==================[external data declaration]==============================*/
-#if (CPU == mk60fx512vlq15)
-/* Reset_Handler is defined in startup_MK60F15.S_CPP */
-void Reset_Handler( void );
+void InitMic(void);
+int ReadMic(void);
 
-extern uint32_t __StackTop;
-#elif (CPU == lpc4337)
-/** \brief Reset ISR
- **
- ** ResetISR is defined in cr_startup_lpc43xx.c
- **
- ** \remark the definition is in
- **         externals/drivers/cortexM4/lpc43xx/src/cr_startup_lpc43xx.c
- **/
-extern void ResetISR(void);
-
-/** \brief Stack Top address
- **
- ** External declaration for the pointer to the stack top from the Linker Script
- **
- ** \remark only a declaration is needed, there is no definition, the address
- **         is set in the linker script:
- **         externals/base/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld.
- **/
-extern void _vStackTop(void);
-
-
-
-void RIT_IRQHandler(void);
-void EscucharMicrofono(void);
-void HablarAlEsclavo(uint8_t);
-void HablarAlMaestro(uint8_t);
-void EscucharAlMaestro(void);
-void EscucharAlEsclavo(void);
-void Maestro(void);
-void Esclavo(void);
-#else
-#endif
 
 /*==================[external functions declaration]=========================*/
-
-/** @} doxygen end group definition */
-/** @} doxygen end group definition */
-/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef EJERCICIO_H */
+#endif /* #ifndef MIC_H */
 

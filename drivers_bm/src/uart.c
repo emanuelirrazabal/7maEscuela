@@ -55,47 +55,13 @@
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20160422 v0.1 initials initial version leo
- * 20160807 v0.2 modifications and improvements made by Eduardo Filomena
- * 20160808 v0.3 modifications and improvements made by Juan Manuel Reta
+ * 20160807 v0.2 modifications and improvements made by Eduardo Filomena 
  */
 
 /*==================[inclusions]=============================================*/
 #include "uart.h"
 
 /*==================[macros and definitions]=================================*/
-
-#define DELAY_CHARACTER 50000
-
-/* UART0 (RS485/Profibus) */
-#define RS485_UART  LPC_USART0
-
-#define RS485_TXD_MUX_GROUP   9
-#define RS485_RXD_MUX_GROUP   9
-
-#define RS485_TXD_MUX_PIN   5
-#define RS485_RXD_MUX_PIN   6
-
-
-/* UART2 (USB-UART) */
-#define USB_UART  LPC_USART2
-
-#define UART_USB_TXD_MUX_GROUP   7
-#define UART_USB_RXD_MUX_GROUP   7
-
-#define UART_USB_TXD_MUX_PIN   1
-#define UART_USB_RXD_MUX_PIN   2
-
-
-/* UART3 (RS232) */
-#define RS232_UART  LPC_USART3
-
-#define RS232_TXD_MUX_GROUP   2
-#define RS232_RXD_MUX_GROUP   2
-
-#define RS232_TXD_MUX_PIN   3
-#define RS232_RXD_MUX_PIN   4
-
-
 
 /*==================[internal data declaration]==============================*/
 
@@ -109,45 +75,25 @@
 
 /*==================[external functions definition]==========================*/
 /** \brief ADC Initialization method  */
-uint8_t Init_Uart_Ftdi(void)
+uint8_t init_UART_FTDI_EDUCIAA(void)
 {
 
-	/** \details
-	 * This function initialize the ADC peripheral in the EDU-CIAA board,
-	 * with the correct parameters with LPCOpen library. It uses CH1
-	 *
-	 * \param none
-	 *
-	 * \return uint8_t: TBD (to support errors in the init function)
-	 * */
-
-
 	/* UART2 (USB-UART) */
-	Chip_UART_Init(USB_UART);
-	Chip_UART_SetBaud(USB_UART, 115200);
+	
+	Chip_UART_Init(LPC_USART2);
+	Chip_UART_SetBaud(LPC_USART2, 115200);
 
-	Chip_UART_SetupFIFOS(USB_UART, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
+	Chip_UART_SetupFIFOS(LPC_USART2, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
 
-	Chip_UART_TXEnable(USB_UART);
+	Chip_UART_TXEnable(LPC_USART2);
 
-	Chip_SCU_PinMux(UART_USB_TXD_MUX_GROUP, UART_USB_TXD_MUX_PIN, MD_PDN, FUNC6);              /* P7_1: UART2_TXD */
-	Chip_SCU_PinMux(UART_USB_RXD_MUX_GROUP, UART_USB_RXD_MUX_PIN, MD_PLN|MD_EZI|MD_ZI, FUNC6); /* P7_2: UART2_RXD */
-
-	/* UART3 (RS232) */
-	Chip_UART_Init(RS232_UART);
-	Chip_UART_SetBaud(RS232_UART, 115200);
-
-	Chip_UART_SetupFIFOS(RS232_UART, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
-
-	Chip_UART_TXEnable(LPC_USART3);
-
-	Chip_SCU_PinMux(RS232_TXD_MUX_GROUP, RS232_TXD_MUX_PIN, MD_PDN, FUNC2);              /* P2_3: UART3_TXD */
-	Chip_SCU_PinMux(RS232_RXD_MUX_GROUP, RS232_RXD_MUX_PIN, MD_PLN|MD_EZI|MD_ZI, FUNC2); /* P2_4: UART3_RXD */
+Chip_SCU_PinMux(7, 1, MD_PDN, FUNC6);              /* P7_1: UART2_TXD */
+	Chip_SCU_PinMux(7, 2, MD_PLN|MD_EZI|MD_ZI, FUNC6); /* P7_2: UART2_RXD */
 
 	return TRUE;
 }
 
-uint8_t Init_Uart_Rs485(void)
+uint8_t init_UART_RS485_EDUCIAA(void)
 {
 
 	/** \details
@@ -162,73 +108,100 @@ uint8_t Init_Uart_Rs485(void)
 	/*UART initialization*/
 
 	/* UART0 (RS485/Profibus) */
-	Chip_UART_Init(RS485_UART);
-	Chip_UART_SetBaud(RS485_UART, 115200);
+	Chip_UART_Init(LPC_USART0);
+	Chip_UART_SetBaud(LPC_USART0, 115200);
 
-	Chip_UART_SetupFIFOS(RS485_UART, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
+	Chip_UART_SetupFIFOS(LPC_USART0, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
 
-	Chip_UART_TXEnable(RS485_UART);
+	Chip_UART_TXEnable(LPC_USART0);
 
-	Chip_SCU_PinMux(RS485_TXD_MUX_GROUP, RS485_TXD_MUX_PIN, MD_PDN, FUNC7);              /* P9_5: UART0_TXD */
-	Chip_SCU_PinMux(RS485_RXD_MUX_GROUP, RS485_RXD_MUX_PIN, MD_PLN|MD_EZI|MD_ZI, FUNC7); /* P9_6: UART0_RXD */
-
-	Chip_UART_SetRS485Flags(RS485_UART, UART_RS485CTRL_DCTRL_EN | UART_RS485CTRL_OINV_1);
+	Chip_SCU_PinMux(9, 5, MD_PDN, FUNC7);              /* P9_5: UART0_TXD */
+	Chip_SCU_PinMux(9, 6, MD_PLN|MD_EZI|MD_ZI, FUNC7); /* P9_6: UART0_RXD */
+    
+	Chip_UART_SetRS485Flags(LPC_USART0, UART_RS485CTRL_DCTRL_EN | UART_RS485CTRL_OINV_1);
 
 	Chip_SCU_PinMux(6, 2, MD_PDN, FUNC2);              /* P6_2: UART0_DIR */
 
 	return TRUE;
 }
 
-uint8_t Init_Uart_Rs232(void)
+uint8_t init_UART_RS232_EDUCIAA(void)
 {
 
-	/** \details
-	 * This function initialize the ADC peripheral in the EDU-CIAA board,
-	 * with the correct parameters with LPCOpen library. It uses CH1
-	 *
-	 * \param none
-	 *
-	 * \return uint8_t: TBD (to support errors in the init function)
-	 * */
 
-	/*UART initialization*/
+	Chip_UART_Init(LPC_USART3);
+	Chip_UART_SetBaud(LPC_USART3, 19200);
 
-	/* UART3 (RS232) */
-	Chip_UART_Init(RS232_UART);
-	Chip_UART_SetBaud(RS232_UART, 115200);
+	Chip_UART_SetupFIFOS(LPC_USART3, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
 
-	Chip_UART_SetupFIFOS(RS232_UART, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
+	Chip_UART_TXEnable(LPC_USART3);
 
-	Chip_UART_TXEnable(RS232_UART);
-
-	Chip_SCU_PinMux(RS232_TXD_MUX_GROUP, RS232_TXD_MUX_PIN, MD_PDN, FUNC2);              /* P2_3: UART3_TXD */
-	Chip_SCU_PinMux(RS232_TXD_MUX_GROUP, RS232_RXD_MUX_PIN, MD_PLN|MD_EZI|MD_ZI, FUNC2); /* P2_4: UART3_RXD */
+	Chip_SCU_PinMux(2, 3, MD_PDN, FUNC2);              /* P2_3: UART3_TXD */
+	Chip_SCU_PinMux(2, 4, MD_PLN|MD_EZI|MD_ZI, FUNC2); /* P2_4: UART3_RXD */
 
 	return TRUE;
 }
 
-uint8_t ReadByte_Uart_Usb(void)
+uint8_t readByte_UART_USB_EDUCIAA()
 {
-	return Chip_UART_ReadByte((LPC_USART_T *)LPC_USART2);
+	return Chip_UART_ReadByte(LPC_USART2);
+}
+uint8_t readByte_UART_RS232_EDUCIAA(){
+	return Chip_UART_ReadByte(LPC_USART3);
+
 }
 
-uint32_t ReadStatus_Uart_Usb(void)
+void writeByte_UART_USB_EDUCIAA(uint8_t dato)
+{
+	Chip_UART_SendByte(LPC_USART2,dato);
+}
+void writeByte_UART_RS232_EDUCIAA(uint8_t dato)
+{
+	Chip_UART_SendByte(LPC_USART3,dato);
+}
+
+
+
+uint32_t readStatus_UART_USB_EDUCIAA()
 {
 	return (Chip_UART_ReadLineStatus((LPC_USART_T *)LPC_USART2) & UART_LSR_THRE);
 }
+uint32_t readStatus_UART_RS232_EDUCIAA()
+{
+	return (Chip_UART_ReadLineStatus((LPC_USART_T *)LPC_USART3) & UART_LSR_THRE);
+}
 
-void SendString_Uart_Usb(char message[], uint8_t size)
+void sendString_UART_USB_EDUCIAA(char message[], uint8_t size)
 {
 	uint8_t msjIndex = 0;
 	uint64_t i;
 
 	/* sending byte by byte*/
-	while(( readStatus_UART_USB_EDUCIAA() != 0) && (msjIndex < size))
+	while(( readStatus_UART_USB_EDUCIAA() != 0) && (msjIndex < size) && (message[msjIndex]!=0))
 	{
 		Chip_UART_SendByte((LPC_USART_T *)LPC_USART2, message[msjIndex]);
 
 		/*delay*/
-		for (i=0;i<DELAY_CHARACTER;i++)
+		for (i=0;i<50000;i++)
+		{
+			asm  ("nop");
+		}
+		msjIndex++;
+	}
+
+}
+void sendString_UART_RS232_EDUCIAA(char message[], uint8_t size)
+{
+	uint8_t msjIndex = 0;
+	uint64_t i;
+
+	/* sending byte by byte*/
+	while(( readStatus_UART_RS232_EDUCIAA() != 0) && (msjIndex < size))
+	{
+		Chip_UART_SendByte(LPC_USART3, message[msjIndex]);
+
+		/*delay*/
+		for (i=0;i<50000;i++)
 		{
 			asm  ("nop");
 		}
@@ -237,7 +210,7 @@ void SendString_Uart_Usb(char message[], uint8_t size)
 
 }
 
-void IntToString(int16_t value, uint8_t* pBuf, uint32_t len, uint32_t base)
+void intToString(int16_t value, uint8_t* pBuf, uint32_t len, uint32_t base)
 {
 	/**
 	 * \details

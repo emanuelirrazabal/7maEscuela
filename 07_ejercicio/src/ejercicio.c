@@ -60,8 +60,14 @@
 
 /*==================[inclusions]=============================================*/
 #include "ejercicio.h"
-#define OK "Mensaje RECIBIDO"
-#define KO "Mensaje NO RECIBIDO"
+#define OK "\n\rMensaje RECIBIDO"
+#define KO "\n\rMensaje NO RECIBIDO"
+#define ESPERA 1000000
+#define INTERPLAP 100000
+#define MICROACTUAL 10000
+#define ESPERA_APLAUSO 1000000
+
+
 /* <= own header */
 
 
@@ -89,63 +95,251 @@
  *          warnings or errors.
  */
 
-
+uint8_t soyElQueSoy = 0;
 uint8_t loQueEscuche = 0;
-uint8_t respuestaAmigo = 0;
+uint8_t loQueRecibiDelMaestro= 0;
+uint64_t loQueRecibiDelEsclavo = 0;
 
 int main(void)
 {
    /* inicializaciones */
 
 
-
+	InitLed();
+	Init_Switches();
 	init_UART_RS232_EDUCIAA();
-	timerInit(1000,&EscucharMicrofono);
+	init_UART_FTDI_EDUCIAA();
+	InitMic();
+
+	uint8_t tecla = 0;
 
 
-    while(1){
+    while(1)
+    {
 
-    	if(loQueEscuche)
+    	/*Iniciar MAESTRO o ESCLAVO*/
+    	while ((tecla == 0)&&!soyElQueSoy)
     	{
-    		HablarAmigo();
+  		    tecla = Read_Switches();
 
     	}
 
+    	soyElQueSoy=tecla;//elijo una vez el modo y después lo recuerdo.
+
+    	switch(tecla){
+		   case TEC1:
+		   case TEC2:
+			      EncenderLed(LED_ROJO);
+			      Maestro();
+			      break;
+		   case TEC3:
+		   case TEC4:
+				  EncenderLed(LED_VERDE);
+				  Esclavo();
+				  break;
+		   default:break;
+    	}
 
     }
     
 
 }
 
+void Maestro()
+{
+	while(loQueEscuche==0)//Espero del Microfono
+	{
+		EscucharMicrofono();
+
+	}
+
+	HablarAlEsclavo(loQueEscuche);//Microfono
+	EscucharAlEsclavo();
+
+	loQueEscuche=0;//Reinicio para escuchar el Microfono
+	//TODO ERROR
+}
+
+void Esclavo()
+{
+	while(loQueRecibiDelMaestro==0)
+	{
+		EscucharAlMaestro();
+	}
+
+	HablarAlMaestro(loQueRecibiDelMaestro);
+	loQueRecibiDelMaestro=0;
+
+
+}
+
 void EscucharMicrofono()
 {
-	//escuchar desde el microfono y convertir a instruccion de salida.
-	//Falta codificaciónn de Adrian
-	loQueEscuche = 1;
+	/*int i=0;
+	int aplausos = 0;
+	while(i<=INTERPLAP)
+	{
+		aplausos= aplausos + ReadMic();
+		i++;
+	}
+	sendString_UART_USB_EDUCIAA("\n\rLEIDO MICROFONO: ",22);
+	sendString_UART_USB_EDUCIAA(Itoa(aplausos,10),64);
+	sendString_UART_USB_EDUCIAA("\n\rUMBRAL MICROFONO: ",22);
+	sendString_UART_USB_EDUCIAA(Itoa(MICROACTUAL,10),64);
+
+	switch(aplausos/MICROACTUAL)
+	{
+		case 0:loQueEscuche = 0;break;
+		case 1:loQueEscuche = 65;break;
+		case 2:loQueEscuche = 66;break;
+		case 3:loQueEscuche = 67;break;
+		default: loQueEscuche =  67;break;
+		}
+	sendString_UART_USB_EDUCIAA("\n\rLED: ",22);
+	sendString_UART_USB_EDUCIAA(Itoa(loQueEscuche,10),3);
+	*/
+	//Espero primer bit
+	while(!ReadMic())
+	{
+
+	}
+	//Delay para esperar el fin del aplauso
+	 int i=0;
+	 while(i<=ESPERA_APLAUSO)
+	 	{
+	 		i++;
+	 	}
+	 //Un aplauso
+	 int aplausos = ReadMic();
+	 i=0;
+	 while(i<=ESPERA_APLAUSO)
+	 	{
+	 		i++;
+	 	}
+	 //Dos aplausos
+	  aplausos = aplausos+ReadMic();
+	 i=0;
+	 while(i<=ESPERA_APLAUSO)
+	 	{
+	 		i++;
+	 	}
+	 //Tres aplausos
+	  aplausos = aplausos+ReadMic();
+
+	  switch(aplausos)
+	  	{
+	  		case 0:loQueEscuche = 0;sendString_UART_USB_EDUCIAA("\n\rLED: 0",9);break;
+	  		case 1:loQueEscuche = 65;sendString_UART_USB_EDUCIAA("\n\rLED: 65",9);break;
+	  		case 2:loQueEscuche = 66;sendString_UART_USB_EDUCIAA("\n\rLED: 66",9);break;
+	  		case 3:loQueEscuche = 67;sendString_UART_USB_EDUCIAA("\n\rLED: 67",9);break;
+	  		default: loQueEscuche =  67;sendString_UART_USB_EDUCIAA("\n\rLED:67d",9);break;
+	  		}
+
+
 }
 
-void EscucharAmigo()
+
+
+void EscucharAlEsclavo()
 {
 	//escuchar desde el RS232
-	respuestaAmigo = readByte_UART_RS232_EDUCIAA();
-	if(respuestaAmigo == loQueEscuche)
-		sendString_UART_USB_EDUCIAA(OK,16);
+	int i=0;
+	do
+	{
+		loQueRecibiDelEsclavo = readByte_UART_RS232_EDUCIAA();
+		i++;
+	}while((loQueRecibiDelEsclavo==0)&&(i<ESPERA));
+
+	if(i>=ESPERA)
+	{
+		sendString_UART_USB_EDUCIAA("\n\rESCLAVO NO RESPONDE",20);
+	}
 	else
 	{
-		sendString_UART_USB_EDUCIAA(KO,16);
-		sendString_UART_USB_EDUCIAA("\n\r",2);
-		sendString_UART_USB_EDUCIAA("Enviado: ",9);
-		sendString_UART_USB_EDUCIAA(Itoa(loQueEscuche,10),2);
-		sendString_UART_USB_EDUCIAA("\n\r",2);
-		sendString_UART_USB_EDUCIAA("Recibido: ",10);
-		sendString_UART_USB_EDUCIAA(Itoa(respuestaAmigo,10),2);
-		sendString_UART_USB_EDUCIAA("============",12);
+		if(loQueRecibiDelEsclavo == loQueEscuche)
+			{sendString_UART_USB_EDUCIAA(OK,20);EncenderLed(LED_VERDE);}
+		else
+		{
+			EncenderLed(LED_ROJO);
+			sendString_UART_USB_EDUCIAA(KO,20);
+			sendString_UART_USB_EDUCIAA("\n\r",2);
+			sendString_UART_USB_EDUCIAA("Enviado: ",9);
+			sendString_UART_USB_EDUCIAA(Itoa(loQueEscuche,10),2);
+			sendString_UART_USB_EDUCIAA("\n\r",2);
+			sendString_UART_USB_EDUCIAA("Recibido: ",10);
+			sendString_UART_USB_EDUCIAA(Itoa(loQueRecibiDelEsclavo,10),2);
+			sendString_UART_USB_EDUCIAA("\n\r============",15);
+		}
+
 	}
+	loQueRecibiDelEsclavo =0;
+	ApagarLed(LED1);ApagarLed(LED2);ApagarLed(LED3);
 }
 
-void HablarAmigo()
+void EscucharAlMaestro()
 {
-	writeByte_UART_RS232_EDUCIAA(loQueEscuche);
+	//escuchar desde el RS232
+	loQueRecibiDelMaestro = readByte_UART_RS232_EDUCIAA();
+	sendString_UART_USB_EDUCIAA("\n\r",10);
+	sendString_UART_USB_EDUCIAA(Itoa(loQueRecibiDelMaestro,10),10);
+	//Encender Led enviado
+		switch(loQueRecibiDelMaestro){
+
+				   case 65:
+					  ApagarLed(LED2);
+					  ApagarLed(LED3);
+				      EncenderLed(LED1);
+				      break;
+				   case 66:
+					  ApagarLed(LED1);
+					  ApagarLed(LED3);
+					  EncenderLed(LED2);
+					  break;
+				   case 67:
+					  ApagarLed(LED1);
+					  ApagarLed(LED2);
+				      EncenderLed(LED3);
+				      break;
+				   default : break;
+				}
+
+}
+
+void HablarAlMaestro(uint8_t dato)
+{
+
+		// Enviar dato
+		writeByte_UART_RS232_EDUCIAA(dato);
+}
+//El maestro habla con el esclavo, enciende el LED enviado
+void HablarAlEsclavo(uint8_t dato)
+{
+
+
+	//Encender Led enviado
+	switch(dato){
+
+			   case 65:
+				  ApagarLed(LED2);
+				  ApagarLed(LED3);
+			      EncenderLed(LED1);
+			      break;
+			   case 66:
+				  ApagarLed(LED1);
+				  ApagarLed(LED3);
+				  EncenderLed(LED2);
+				  break;
+			   case 67:
+				  ApagarLed(LED1);
+				  ApagarLed(LED2);
+			      EncenderLed(LED3);
+			      break;
+			   default : break;
+			}
+	// Enviar dato
+	writeByte_UART_RS232_EDUCIAA(dato);
+
+
 }
 
 
